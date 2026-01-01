@@ -268,7 +268,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
     
     <script>
-        const API_URL = "http://localhost:5000/api";
+        const API_URL = "http://3.108.67.225/:5000/api";
         const urlParams = new URLSearchParams(window.location.search);
         const contestId = urlParams.get('id');
         const token = localStorage.getItem('token');
@@ -353,4 +353,5 @@
         window.onload = init;
     </script>
 </body>
+
 </html>
