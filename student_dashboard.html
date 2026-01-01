@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ContestPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --sidebar-hover: rgba(51, 65, 85, 0.4);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+
+        body { 
+            margin: 0; 
+            display: flex; 
+            background-color: #f8f9fa;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(214,100%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(220,100%,94%,1) 0, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(214,100%,96%,1) 0, transparent 50%);
+            min-height: 100vh; 
+            color: var(--text-main); 
+        }
+        
+        /* Glassmorphism Sidebar */
+        .sidebar { 
+            width: 270px; 
+            background: var(--sidebar-bg); 
+            backdrop-filter: blur(12px);
+            color: white; 
+            padding: 30px 20px; 
+            position: fixed; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+
+        .sidebar-logo {
+            height: 40px;
+            width: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .sidebar h2 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+        .nav-item { 
+            padding: 14px 18px; 
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover { background: var(--sidebar-hover); color: white; transform: translateX(5px); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.3); }
+
+        .logout-btn { margin-top: auto; color: #f87171; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px 60px; margin-left: 270px; width: calc(100% - 270px); }
+        
+        .welcome-card { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(10px);
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+            margin-bottom: 35px; 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-card h2 { font-size: 28px; font-weight: 800; color: var(--primary-dark); }
+        .welcome-card p { color: var(--text-muted); margin-top: 5px; }
+
+        /* Tabs Styling */
+        .tabs { 
+            display: flex; 
+            gap: 10px;
+            margin-bottom: 30px; 
+            background: rgba(255,255,255,0.4);
+            padding: 6px;
+            border-radius: 16px;
+            width: fit-content;
+        }
+        .tab { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .tab.active { 
+            background: var(--white);
+            color: var(--primary); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Contest Grid */
+        .contest-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            gap: 25px; 
+        }
+
+        .contest-card { 
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .contest-card:hover { transform: translateY(-10px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
+
+        .contest-type { 
+            font-size: 10px; 
+            font-weight: 800; 
+            padding: 4px 12px; 
+            border-radius: 100px; 
+            text-transform: uppercase;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+        .type-regular { background: #e0f2fe; color: #0369a1; }
+        .type-debug { background: #f3e8ff; color: #7e22ce; }
+        .type-progression { background: #dcfce7; color: #15803d; }
+
+        .contest-card h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+
+        .progression-info { 
+            font-size: 12px; 
+            background: #f1f5f9; 
+            padding: 10px; 
+            border-radius: 10px; 
+            margin: 15px 0; 
+            border-left: 4px solid var(--primary); 
+        }
+
+        .btn-join { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: 0.3s;
+        }
+        .btn-join:hover { background: var(--primary-dark); box-shadow: 0 8px 15px rgba(26, 115, 232, 0.3); }
+
+        /* Leaderboard Table */
+        .leaderboard-container {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .leaderboard-table { width: 100%; border-collapse: collapse; }
+        .leaderboard-table th { background: #f8fafc; padding: 18px; text-align: left; color: var(--text-muted); font-size: 13px; text-transform: uppercase; font-weight: 700; }
+        .leaderboard-table td { padding: 18px; border-bottom: 1px solid #f1f5f9; font-size: 15px; }
+        .rank-1 { background: #fffbeb; }
+
+        .no-contests { text-align: center; padding: 60px; color: var(--text-muted); font-weight: 500; grid-column: 1/-1; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h2>ContestPro</h2>
+        </div>
+        <div class="nav-item active" id="nav-all" onclick="changeTab('all')"><i class="fas fa-layer-group"></i> All Contests</div>
+        <div class="nav-item" id="nav-regular" onclick="changeTab('regular')"><i class="fas fa-code"></i> Regular</div>
+        <div class="nav-item" id="nav-debug" onclick="changeTab('debug')"><i class="fas fa-bug"></i> Debugging</div>
+        <div class="nav-item" id="nav-my" onclick="changeTab('my')"><i class="fas fa-user-check"></i> My History</div>
+        <div class="nav-item" id="nav-leaderboard" onclick="changeTab('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</div>
+        
+        <a class="nav-item logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-card">
+            <div>
+                <h2 id="welcomeText">Welcome back!</h2>
+                <p id="collegeText"><i class="fas fa-university"></i> Loading College...</p>
+            </div>
+            <div id="contestsCount" style="font-weight: 700; color: var(--primary);">0 Contests Found</div>
+        </div>
+
+        <div class="tabs">
+            <div id="tab-all" class="tab active" onclick="changeTab('all')">Progression</div>
+            <div id="tab-regular" class="tab" onclick="changeTab('regular')">Regular</div>
+            <div id="tab-debug" class="tab" onclick="changeTab('debug')">Debugging</div>
+            <div id="tab-my" class="tab" onclick="changeTab('my')">Completed</div>
+        </div>
+
+        <div id="contestGrid" class="contest-grid">
+            <div class="no-contests"><i class="fas fa-spinner fa-spin"></i> Synchronizing your dashboard...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5000/api";
+        const token = localStorage.getItem('token');
+        
+        let allRegularContests = [];
+        let allDebugContests = [];
+        let progressionRules = [];
+        let studentResults = {}; 
+        let currentTab = 'all';
+
+        async function initDashboard() {
+            if (!token) { window.location.href = 'index.html'; return; }
+            
+            document.getElementById('welcomeText').textContent = `Hi, ${localStorage.getItem('userName') || 'Student'}! 👋`;
+            document.getElementById('collegeText').innerHTML = `<i class="fas fa-university"></i> ${localStorage.getItem('college') || 'Individual Participant'}`;
+
+            await fetchData();
+            renderContests();
+        }
+
+        async function fetchData() {
+            const headers = { 'Authorization': `Bearer ${token}` };
+            try {
+                const responses = await Promise.all([
+                    fetch(`${API_URL}/student/available-regular-contests`, { headers }),
+                    fetch(`${API_URL}/student/available-debug-contests`, { headers }),
+                    fetch(`${API_URL}/student/progression-rules`, { headers }),
+                    fetch(`${API_URL}/student/my-results`, { headers })
+                ]);
+
+                allRegularContests = (await responses[0].json()).data || [];
+                allDebugContests = (await responses[1].json()).data || [];
+                progressionRules = (await responses[2].json()).data || [];
+                
+                const resultsArray = (await responses[3].json()).data || [];
+                studentResults = resultsArray.reduce((acc, curr) => {
+                    acc[curr.contest_id] = curr;
+                    return acc;
+                }, {});
+
+            } catch (err) { console.error("Fetch error:", err); }
+        }
+
+        async function renderContests() {
+            const grid = document.getElementById('contestGrid');
+            let filteredList = [];
+
+            if (currentTab === 'leaderboard') {
+                grid.innerHTML = '<div class="no-contests">Loading world rankings...</div>';
+                try {
+                    const res = await fetch(`${API_URL}/student/leaderboard`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const leaderboardData = await res.json();
+                    const data = leaderboardData.data || [];
+                    
+                    grid.innerHTML = `
+                        <div class="leaderboard-container">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr><th>Rank</th><th>Student</th><th>College</th><th>Score</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.map((s, i) => `
+                                    <tr class="${i === 0 ? 'rank-1' : ''}">
+                                        <td>${i + 1}</td>
+                                        <td><strong>${s.name}</strong></td>
+                                        <td>${s.college}</td>
+                                        <td><span style="color:var(--primary); font-weight:800;">${s.totalScore}</span></td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table></div>`;
+                    return;
+                } catch (e) { grid.innerHTML = '<div class="no-contests">Leaderboard unavailable.</div>'; return; }
+            }
+
+            if (currentTab === 'all') {
+                filteredList = progressionRules.map(rule => {
+                    const regResult = studentResults[rule.normal_contest_id];
+                    const hasPassed = regResult && regResult.total_score >= rule.passing_score;
+                    return { ...rule, type: 'progression', isLocked: !hasPassed, currentScore: regResult?.total_score || 0 };
+                });
+            } else if (currentTab === 'regular') {
+                filteredList = allRegularContests.map(c => ({...c, type: 'regular'}));
+            } else if (currentTab === 'debug') {
+                filteredList = allDebugContests.map(c => ({...c, type: 'debug'}));
+            } else if (currentTab === 'my') {
+                filteredList = [...allRegularContests, ...allDebugContests].filter(c => studentResults[c.contest_id]);
+            }
+
+            document.getElementById('contestsCount').textContent = `${filteredList.length} Contests Available`;
+
+            if (filteredList.length === 0) {
+                grid.innerHTML = `<div class="no-contests">No contests found for this category.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filteredList.map(c => {
+                const isProg = c.type === 'progression';
+                const result = studentResults[isProg ? c.normal_contest_id : c.contest_id];
+                
+                return `
+                    <div class="contest-card">
+                        <span class="contest-type type-${isProg ? 'progression' : c.type}">
+                            ${isProg ? 'Step Based' : c.type}
+                        </span>
+                        <h4>${isProg ? c.normal_contest_name : (c.title || c.name)}</h4>
+                        <p style="font-size:13px; color:var(--text-muted)"><i class="fas fa-code"></i> ${c.language || 'Multi-language'}</p>
+                        
+                        ${isProg ? `
+                            <div class="progression-info">
+                                <strong>Unlock Goal:</strong> Pass with ${c.passing_score}%<br>
+                                <strong>Next Step:</strong> ${c.debug_contest_name}
+                            </div>
+                        ` : ''}
+
+                        <div style="margin-top:20px;">
+                            ${isProg && c.isLocked ? `
+                                <div style="color:var(--danger); font-size:11px; margin-bottom:8px;"><i class="fas fa-lock"></i> Reach ${c.passing_score}% to unlock Debugging</div>
+                                <button class="btn-join" onclick="startContest('${c.normal_contest_id}', 'regular')">Attempt Regular</button>
+                            ` : isProg && !c.isLocked ? `
+                                <div style="color:var(--success); font-size:11px; margin-bottom:8px;"><i class="fas fa-lock-open"></i> Next Step Unlocked!</div>
+                                <button class="btn-join" style="background:#7e22ce" onclick="startContest('${c.debug_contest_id}', 'debug')">Start Debugging</button>
+                            ` : `
+                                <button class="btn-join" onclick="startContest('${c.contest_id}', '${c.type}')">
+                                    ${result ? 'Review Submission' : 'Enter Contest'}
+                                </button>
+                            `}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function changeTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab, .nav-item').forEach(t => t.classList.remove('active'));
+            const tabEl = document.getElementById(`tab-${tabId}`);
+            const navEl = document.getElementById(`nav-${tabId}`);
+            if(tabEl) tabEl.classList.add('active');
+            if(navEl) navEl.classList.add('active');
+            renderContests();
+        }
+
+        function startContest(id, type) {
+            const path = type === 'debug' ? 'student-debug.html' : 'student-contest.html';
+            window.location.href = `${path}?id=${id}`;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to exit?')) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>

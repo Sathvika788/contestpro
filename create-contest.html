@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator - Advanced Contest Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --sidebar-hover: rgba(51, 65, 85, 0.4);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: #f8f9fa;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(214,100%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(220,100%,94%,1) 0, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(214,100%,96%,1) 0, transparent 50%);
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+
+        .main-container { 
+            max-width: none; 
+            width: 100%; 
+            height: calc(100vh - 40px); 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(12px);
+            border-radius: 24px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .header { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+            color: white; 
+            padding: 20px 40px; 
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-img { height: 50px; width: 50px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { color: #94a3b8; font-size: 14px; }
+
+        .content-grid { display: grid; grid-template-columns: 270px 1fr; flex: 1; overflow: hidden; }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            padding: 30px 20px; 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 14px 18px; 
+            color: #cbd5e1; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            transition: all 0.3s ease; 
+            font-weight: 500; 
+            cursor: pointer; 
+        }
+
+        .nav-item:hover { background: var(--sidebar-hover); color: white; transform: translateX(5px); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+
+        .main-content { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 30px; }
+
+        /* Tab Navigation */
+        .tabs-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .content-tabs { display: flex; gap: 10px; }
+        .content-tab { 
+            padding: 12px 24px; 
+            background: #f1f5f9; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        .content-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2); }
+
+        /* Section Styling */
+        .content-section { 
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 20px; 
+            padding: 30px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .content-section h3 { font-weight: 800; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        label { display: block; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; font-size: 13px; text-transform: uppercase; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 12px; 
+            font-size: 15px; 
+            transition: all 0.2s; 
+            background: white; 
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+        /* Buttons */
+        .btn { 
+            padding: 14px 28px; 
+            border-radius: 12px; 
+            border: none; 
+            font-size: 15px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            justify-content: center; 
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px rgba(99, 102, 241, 0.2); }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .method-box { 
+            padding: 25px; 
+            border-radius: 16px; 
+            border: 2px dashed #c7d2fe; 
+            background: rgba(248, 250, 252, 0.5); 
+            margin-bottom: 25px; 
+        }
+
+        .problem-item { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            padding: 18px; 
+            border-radius: 15px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.2s;
+        }
+        .problem-item:hover { border-color: var(--primary); transform: translateX(5px); }
+
+        /* Modern Table */
+        .contest-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .contest-table th { padding: 15px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+        .contest-table td { padding: 18px 15px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        .contest-table td:first-child { border-left: 1px solid #f1f5f9; border-radius: 15px 0 0 15px; }
+        .contest-table td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 15px 15px 0; }
+
+        .badge { padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .badge-active { background: #dcfce7; color: #166534; }
+        
+        /* Toast & Animations */
+        .loading { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; border-radius: 12px; color: white; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; display: flex; align-items: center; gap: 10px; }
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+        
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="header-left">
+                <img src="logo.jpg" alt="Logo" class="logo-img">
+                <div>
+                    <h1 id="headerTitle">Advanced Contest Creator</h1>
+                    <p id="headerSubtitle">Create comprehensive programming contests</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="sidebar">
+                <a class="nav-item" href="moderator.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a class="nav-item active" id="navRegular" onclick="showTab('create')"><i class="fas fa-code"></i> Regular Contest</a>
+                <a class="nav-item" href="create-debug-contest.html"><i class="fas fa-bug"></i> Debug Contest</a>
+                <a class="nav-item" id="navResults" onclick="showTab('results')"><i class="fas fa-chart-line"></i> Results & Export</a>
+                <a class="nav-item" onclick="logout()" style="margin-top: auto; color: #f87171;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+            
+            <div class="main-content">
+                <div class="tabs-container" id="tabsArea">
+                    <div class="content-tabs">
+                        <button class="content-tab active" id="tabBtnCreate" onclick="showTab('create')">Create Contest</button>
+                        <button class="content-tab" id="tabBtnManage" onclick="showTab('manage')">Manage Contests</button>
+                        <button class="content-tab" id="tabBtnDocuments" onclick="showTab('documents')">Document Mode</button>
+                    </div>
+                </div>
+                
+                <div id="createTab" class="tab-content active">
+                    <div class="content-section">
+                        <h3><i class="fas fa-cog"></i> 1. Contest Configuration</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Contest Name *</label>
+                                <input type="text" id="contestName" placeholder="e.g., Python Basics 2025" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Time Limit (minutes)</label>
+                                <input type="number" id="timeLimit" value="120">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="contestDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3><i class="fas fa-tasks"></i> 2. Problem Management</h3>
+                        <div class="form-group">
+                            <label>Creation Method</label>
+                            <select id="method" onchange="handleMethod()">
+                                <option value="manual">Manual Entry</option>
+                                <option value="ai">AI Generation</option>
+                                <option value="document">Document Mode (Paste Content)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="manualSection" class="method-box">
+                            <input type="text" id="qTitle" placeholder="Problem Title" style="margin-bottom:10px">
+                            <textarea id="qDescription" placeholder="Problem Description" rows="4"></textarea>
+                            <div class="form-grid" style="margin-top:10px">
+                                <input type="text" id="qSampleInput" placeholder="Sample Input">
+                                <input type="text" id="qSampleOutput" placeholder="Sample Output">
+                            </div>
+                            <button class="btn btn-success" onclick="addProblem()" style="margin-top:15px"><i class="fas fa-plus"></i> Add Problem</button>
+                        </div>
+
+                        <div id="aiSection" class="method-box hidden-section">
+                            <input type="text" id="aiTopic" placeholder="e.g. Dynamic Programming" style="margin-bottom:10px">
+                            <select id="aiLanguage" style="margin-bottom:10px">
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="generateAIProblems()" id="aiGenerateBtn">Generate</button>
+                        </div>
+
+                        <div id="documentSection" class="method-box hidden-section">
+                            <textarea id="documentContent" placeholder="Paste problem document here..." rows="6"></textarea>
+                            <button class="btn btn-primary" onclick="processDocument()" id="processDocBtn" style="margin-top:10px">Extract Problems</button>
+                            <div id="extractedProblems" style="display:none; margin-top:15px"></div>
+                        </div>
+
+                        <div class="problem-list" id="problemListDisplay">
+                            <div class="empty-state">No problems added yet.</div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="launchContest()" id="launchBtn" style="margin-top: 20px; width: 100%;">
+                            <i class="fas fa-rocket"></i> Launch Contest
+                        </button>
+                    </div>
+                </div>
+
+                <div id="manageTab" class="tab-content hidden-section">
+                    <div class="content-section">
+                        <h3>Active Contests</h3>
+                        <table class="contest-table">
+                            <thead>
+                                <tr><th>Name</th><th>Status</th><th>Problems</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="contestListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="resultsTab" class="tab-content hidden-section">
+                    <div class="content-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3><i class="fas fa-trophy"></i> Overall Leaderboard</h3>
+                            <button class="btn btn-success" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+                        </div>
+                        <table class="contest-table">
+                            <thead>
+                                <tr><th>Student Email</th><th>Score</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <tr><td colspan="3" style="text-align:center">No records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        const API_URL = '/api';
+        const token = localStorage.getItem('token');
+        let currentProblems = [];
+        let extractedProblems = [];
+
+        if (!token) window.location.href = 'index.html';
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden-section'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            const tabsArea = document.getElementById('tabsArea');
+            const headerTitle = document.getElementById('headerTitle');
+
+            if (tabName === 'results') {
+                document.getElementById('resultsTab').classList.remove('hidden-section');
+                document.getElementById('resultsTab').classList.add('active');
+                document.getElementById('navResults').classList.add('active');
+                tabsArea.style.display = 'none';
+                headerTitle.innerText = 'Contest Results & Reports';
+                fetchResultsFromScores();
+            } else {
+                tabsArea.style.display = 'block';
+                document.getElementById('navRegular').classList.add('active');
+                headerTitle.innerText = 'Advanced Contest Creator';
+                
+                const targetTab = document.getElementById(tabName + 'Tab');
+                if (targetTab) {
+                    targetTab.classList.remove('hidden-section');
+                    targetTab.classList.add('active');
+                }
+                const btnId = 'tabBtn' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+                const btn = document.getElementById(btnId);
+                if(btn) btn.classList.add('active');
+                
+                if (tabName === 'manage') loadContests();
+            }
+        }
+
+        // Logic functions (Original logic retained)
+        async function fetchResultsFromScores() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center"><div class="loading"></div> Fetching Results...</td></tr>';
+            try {
+                const res = await fetch(`${API_URL}/moderator/all-student-results`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success && data.data.results.length > 0) {
+                    tbody.innerHTML = data.data.results.map(row => `
+                        <tr>
+                            <td><strong>${row.student_email || 'Anonymous'}</strong></td>
+                            <td><span class="badge badge-active">${row.total_score || 0}</span></td>
+                            <td>${row.status || 'Submitted'}</td>
+                        </tr>`).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">No records found.</td></tr>';
+                }
+            } catch (e) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red">Error connecting to server.</td></tr>'; }
+        }
+
+        function handleMethod() {
+            const m = document.getElementById('method').value;
+            ['manual', 'ai', 'document'].forEach(s => document.getElementById(s + 'Section').classList.add('hidden-section'));
+            document.getElementById(m + 'Section').classList.remove('hidden-section');
+        }
+
+        function addProblem() {
+            const title = document.getElementById('qTitle').value;
+            const desc = document.getElementById('qDescription').value;
+            if(!title || !desc) return showToast('Title and Description are required', 'error');
+            currentProblems.push({
+                title, description: desc,
+                test_cases: [{ input: document.getElementById('qSampleInput').value, output: document.getElementById('qSampleOutput').value, is_sample: true }],
+                score: 20, difficulty: 'Medium'
+            });
+            renderProblems();
+            showToast('Problem added', 'success');
+        }
+
+        function renderProblems() {
+            const container = document.getElementById('problemListDisplay');
+            if(currentProblems.length === 0) return container.innerHTML = '<div class="empty-state">No problems added yet.</div>';
+            container.innerHTML = currentProblems.map((p, i) => `
+                <div class="problem-item">
+                    <div><strong>${p.title}</strong></div>
+                    <button class="btn-icon" onclick="removeProblem(${i})"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        function removeProblem(index) { currentProblems.splice(index, 1); renderProblems(); }
+
+        async function launchContest() {
+            const name = document.getElementById('contestName').value.trim();
+            if (!name) { showToast('Please enter a contest name', 'error'); return; }
+            if (currentProblems.length === 0) { showToast('Please add problems', 'error'); return; }
+            const btn = document.getElementById('launchBtn');
+            btn.innerHTML = '<div class="loading"></div> Launching...';
+            btn.disabled = true;
+            try {
+                const response = await fetch(`${API_URL}/moderator/create-contest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ name, problems: currentProblems })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Contest created!', 'success');
+                    currentProblems = []; renderProblems(); showTab('manage');
+                }
+            } catch (e) { showToast('Error', 'error'); }
+            finally { btn.innerHTML = 'Launch Contest'; btn.disabled = false; }
+        }
+
+        async function loadContests() {
+            const res = await fetch(`${API_URL}/moderator/contests`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('contestListBody').innerHTML = data.data.map(c => `
+                    <tr>
+                        <td>${c.title}</td>
+                        <td><span class="badge badge-active">${c.status}</span></td>
+                        <td>${c.problems_count}</td>
+                        <td><button class="btn-icon" onclick="deleteContest('${c.contest_id}')"><i class="fas fa-trash"></i></button></td>
+                    </tr>`).join('');
+            }
+        }
+
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = msg;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function exportToCSV() {
+            const table = document.querySelector(".contest-table");
+            let csvContent = "data:text/csv;charset=utf-8,Student Email,Score,Status\n";
+            const rows = table.querySelectorAll("tr");
+            rows.forEach((row, i) => { if(i===0) return;
+                const cols = row.querySelectorAll("td");
+                csvContent += Array.from(cols).map(c => `"${c.innerText}"`).join(",") + "\n";
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "results.csv");
+            link.click();
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

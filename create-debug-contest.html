@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator - Debugging Contest Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --sidebar-hover: rgba(51, 65, 85, 0.4);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: #f8f9fa;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(214,100%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(220,100%,94%,1) 0, transparent 50%);
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+
+        .main-container { 
+            max-width: none; 
+            width: 100%; 
+            height: calc(100vh - 40px); 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px);
+            border-radius: 24px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Header Integration */
+        .header { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+            color: white; 
+            padding: 20px 40px; 
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-img { 
+            height: 50px; 
+            width: 50px; 
+            border-radius: 12px; 
+            object-fit: cover; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { color: #94a3b8; font-size: 14px; }
+
+        .content-grid { display: grid; grid-template-columns: 270px 1fr; flex: 1; overflow: hidden; }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            padding: 30px 20px; 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 14px 18px; 
+            color: #cbd5e1; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            transition: all 0.3s ease; 
+            font-weight: 500; 
+            cursor: pointer; 
+        }
+
+        .nav-item:hover { background: var(--sidebar-hover); color: white; transform: translateX(5px); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+
+        .main-content { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 30px; }
+
+        /* Tabs and Cards */
+        .tabs-container { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .content-tabs { display: flex; gap: 10px; }
+        .content-tab { 
+            padding: 12px 24px; 
+            background: #f1f5f9; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .content-tab.active { background: var(--primary); color: white; }
+
+        .content-section { 
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 20px; 
+            padding: 30px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .content-section h3 { font-weight: 800; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        label { display: block; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; font-size: 13px; }
+
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 12px; 
+            font-size: 15px; 
+            background: white;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+        .method-box { 
+            padding: 25px; 
+            border-radius: 16px; 
+            border: 2px dashed #c7d2fe; 
+            background: rgba(248, 250, 252, 0.5); 
+            margin-bottom: 25px; 
+        }
+
+        .btn { 
+            padding: 14px 28px; 
+            border-radius: 12px; 
+            border: none; 
+            font-weight: 700; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            transition: 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: white; width: 100%; justify-content: center; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px rgba(99, 102, 241, 0.2); }
+        .btn-success { background: var(--success); color: white; }
+
+        .problem-item { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            padding: 18px; 
+            border-radius: 15px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+
+        .loading { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; border-radius: 12px; color: white; font-weight: 700; z-index: 1000; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+        
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <img src="logo.jpg" alt="Logo" class="logo-img">
+            <div>
+                <h1>Debugging Contest Creator</h1>
+                <p>Create programming contests where students fix buggy code</p>
+            </div>
+        </div>
+        <div class="content-grid">
+            <div class="sidebar">
+                <a class="nav-item" href="moderator.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a class="nav-item" href="create-contest.html"><i class="fas fa-code"></i> Regular Contest</a>
+                <a class="nav-item active" href="create-debug-contest.html"><i class="fas fa-bug"></i> Debug Contest</a>
+                <a class="nav-item" href="debug-results.html">
+                    <i class="fas fa-chart-bar"></i> Debugging Results
+                </a>
+                <a class="nav-item" onclick="logout()" style="margin-top: auto; color: #f87171;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+            
+            <div class="main-content">
+                <div class="tabs-container">
+                    <div class="content-tabs">
+                        <button class="content-tab active" id="createBtn" onclick="showTab('create', event)">Create Contest</button>
+                        <button class="content-tab" id="manageBtn" onclick="showTab('manage', event)">Manage Contests</button>
+                    </div>
+                </div>
+
+                <div id="createTab" class="tab-content active">
+                    <div class="content-section">
+                        <h3><i class="fas fa-cog"></i> 1. Contest Configuration</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Contest Name *</label>
+                                <input type="text" id="contestName" placeholder="e.g., Python Logic Debugging">
+                            </div>
+                            <div class="form-group">
+                                <label>Language *</label>
+                                <select id="progLanguage">
+                                    <option value="python">Python</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="java">Java</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3><i class="fas fa-tasks"></i> 2. Problem Management</h3>
+                        <div class="form-group">
+                            <label>Creation Method</label>
+                            <select id="method" onchange="handleMethod()">
+                                <option value="manual">Manual Entry</option>
+                                <option value="doc">Upload Document</option>
+                            </select>
+                        </div>
+
+                        <div id="manualSection" class="method-box">
+                            <input type="text" id="qTitle" placeholder="Problem Title" style="margin-bottom:15px">
+                            <textarea id="qBuggyCode" placeholder="Paste buggy code here..." rows="5"></textarea>
+                            <input type="text" id="qOutput" placeholder="Expected Output" style="margin-top:15px">
+                            <button class="btn btn-success" onclick="addDebugProblem()" style="margin-top:20px">Add Task</button>
+                        </div>
+
+                        <div id="docSection" class="method-box hidden-section">
+                            <div class="document-upload-area" onclick="document.getElementById('problemDoc').click()" style="border: 2px dashed #6366f1; background: #f5f3ff;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #6366f1; margin-bottom: 10px;"></i>
+                                <h4 id="uploadStatus">Click to Upload Problem Document</h4>
+                                <input type="file" id="problemDoc" accept=".txt,.md" style="display:none" onchange="handleDocumentUpload(event)">
+                            </div>
+                            <div id="docPreview" style="display:none; margin-top:20px;">
+                                <div id="parsedProblemsList"></div>
+                            </div>
+                        </div>
+
+                        <div id="problemListDisplay" class="problem-list" style="margin-top: 20px;"></div>
+                        <button class="btn btn-primary" onclick="launchDebugContest()" id="launchBtn" style="margin-top: 20px;">Launch Contest</button>
+                    </div>
+                </div>
+
+                <div id="manageTab" class="tab-content hidden-section">
+                    <div class="content-section">
+                        <table style="width:100%; border-collapse: separate; border-spacing: 0 10px;">
+                            <thead><tr style="text-align:left; color: var(--text-muted); font-size: 12px; text-transform: uppercase;"><th>Name</th><th>Tasks</th><th>Actions</th></tr></thead>
+                            <tbody id="contestListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        let debugProblems = [];
+
+        function showTab(tabName, event) {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.remove('active');
+                t.classList.add('hidden-section');
+            });
+            document.querySelectorAll('.content-tab').forEach(b => b.classList.remove('active'));
+            
+            const targetTab = document.getElementById(tabName + 'Tab');
+            targetTab.classList.add('active');
+            targetTab.classList.remove('hidden-section');
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            if (tabName === 'manage') loadDebugContests();
+        }
+
+        function handleMethod() {
+            const m = document.getElementById('method').value;
+            ['manual', 'doc'].forEach(s => document.getElementById(s + 'Section')?.classList.add('hidden-section'));
+            document.getElementById(m + 'Section').classList.remove('hidden-section');
+        }
+
+        async function handleDocumentUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const status = document.getElementById('uploadStatus');
+            status.innerHTML = '<div class="loading"></div> Processing...';
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const res = await fetch(`${API_URL}/moderator/process-debug-document`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ documentContent: e.target.result, language: document.getElementById('progLanguage').value })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        renderExtracted(data.data.problems);
+                        status.innerText = 'Upload Successful';
+                    }
+                } catch (err) { showToast('Extraction failed', 'error'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function renderExtracted(problems) {
+            const container = document.getElementById('parsedProblemsList');
+            document.getElementById('docPreview').style.display = 'block';
+            container.innerHTML = problems.map((p, i) => `
+                <div style="background:white; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:600;">${p.title}</span>
+                    <button class="btn btn-success" style="padding:8px 16px; font-size:12px;" onclick='useProblem(${JSON.stringify(p)})'>Add Task</button>
+                </div>
+            `).join('');
+        }
+
+        function useProblem(p) {
+            debugProblems.push(p);
+            renderProblems();
+            showToast('Problem added', 'success');
+        }
+
+        function addDebugProblem() {
+            const title = document.getElementById('qTitle').value;
+            const code = document.getElementById('qBuggyCode').value;
+            if (!title || !code) return showToast('Title and Code required', 'error');
+            debugProblems.push({ title, buggy_code: code, output: document.getElementById('qOutput').value, score: 20 });
+            renderProblems();
+            document.getElementById('qTitle').value = '';
+            document.getElementById('qBuggyCode').value = '';
+        }
+
+        function renderProblems() {
+            const container = document.getElementById('problemListDisplay');
+            container.innerHTML = debugProblems.map((p, i) => `
+                <div class="problem-item">
+                    <span style="font-weight:600;">${p.title}</span>
+                    <button style="background:none; border:none; color:var(--danger); cursor:pointer;" onclick="debugProblems.splice(${i},1);renderProblems();"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function launchDebugContest() {
+            const name = document.getElementById('contestName').value;
+            if (!name || debugProblems.length === 0) return showToast('Name and Problems required', 'error');
+            const btn = document.getElementById('launchBtn');
+            btn.innerHTML = '<div class="loading"></div> Launching...';
+            
+            try {
+                const res = await fetch(`${API_URL}/moderator/create-debug-contest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ name, language: document.getElementById('progLanguage').value, problems: debugProblems, method: 'manual' })
+                });
+                if ((await res.json()).success) {
+                    showToast('Contest Created!', 'success');
+                    debugProblems = []; renderProblems();
+                    showTab('manage');
+                }
+            } catch (e) { showToast('Launch failed', 'error'); }
+            finally { btn.innerText = 'Launch Contest'; }
+        }
+
+        async function loadDebugContests() {
+            const res = await fetch(`${API_URL}/moderator/debug-contests`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('contestListBody').innerHTML = data.data.map(c => `
+                    <tr>
+                        <td style="padding:15px; background:white; border-radius:12px 0 0 12px; font-weight:600;">${c.title}</td>
+                        <td style="padding:15px; background:white;">${c.problems_count} Problems</td>
+                        <td style="padding:15px; background:white; border-radius:0 12px 12px 0;"><i class="fas fa-trash" style="cursor:pointer; color:var(--danger);" onclick="deleteContest('${c.contest_id}')"></i></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function showToast(m, t) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${t}`;
+            toast.innerHTML = m;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

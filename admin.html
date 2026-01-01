@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ContestPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --sidebar-hover: rgba(51, 65, 85, 0.4);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { 
+            margin: 0; 
+            display: flex; 
+            /* Premium Mesh Gradient Background */
+            background-color: #f8f9fa;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(214,100%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(220,100%,94%,1) 0, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(214,100%,96%,1) 0, transparent 50%);
+            min-height: 100vh; 
+            color: var(--text-main); 
+        }
+        
+        /* Glassmorphism Sidebar */
+        .sidebar { 
+            width: 270px; 
+            background: var(--sidebar-bg); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: white; 
+            padding: 30px 20px; 
+            position: fixed; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+
+        .sidebar-logo {
+            height: 40px;
+            width: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .sidebar h2 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+        .sidebar-btn { 
+            padding: 14px 18px; 
+            display: flex;
+            align-items: center;
+            color: #cbd5e1; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-btn:hover { background: var(--sidebar-hover); color: white; transform: translateX(5px); }
+        .sidebar-btn.active { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.3); }
+
+        .logout-btn { margin-top: auto; color: #f87171; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 40px 60px; margin-left: 270px; width: calc(100% - 270px); }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 40px; 
+        }
+
+        .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+        
+        #admin-info { 
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Glassmorphism Cards */
+        .card { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 35px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+            margin-bottom: 35px; 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card h3 { margin-bottom: 25px; font-size: 18px; font-weight: 700; color: var(--text-main); }
+
+        .form-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr auto; 
+            gap: 20px; 
+            align-items: end; 
+        }
+
+        .form-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+
+        input { 
+            padding: 14px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 12px; 
+            width: 100%; 
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.2s ease;
+        }
+
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
+
+        .btn-add { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0 30px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            height: 48px; 
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px rgba(26, 115, 232, 0.2); }
+
+        /* Modern Glass Tables */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        td { padding: 18px 15px; background: rgba(255, 255, 255, 0.6); border-top: 1px solid rgba(255,255,255,0.8); border-bottom: 1px solid rgba(255,255,255,0.8); font-size: 14px; }
+        td:first-child { border-left: 1px solid rgba(255,255,255,0.8); border-radius: 15px 0 0 15px; }
+        td:last-child { border-right: 1px solid rgba(255,255,255,0.8); border-radius: 0 15px 15px 0; }
+        
+        /* Action Buttons */
+        .action-group { display: flex; gap: 8px; }
+        .btn-action { 
+            border: 1px solid #e2e8f0;
+            background: var(--white);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit { color: var(--primary); }
+        .btn-hold { color: var(--warning); }
+        .btn-delete { color: var(--danger); }
+        .btn-action:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+
+        .status-badge { 
+            padding: 6px 14px; 
+            border-radius: 100px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+        }
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-held { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h2>ContestPro</h2>
+        </div>
+        <a href="#" class="sidebar-btn active">Moderators</a>
+        <a class="sidebar-btn logout-btn" onclick="logout()">Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Moderator Management</h1>
+            <div id="admin-info">
+                <span style="color: var(--success); font-size: 18px;">●</span>
+                System Administrator
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Issue New Moderator Login</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="modName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="modEmail" placeholder="mod@contestpro.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="modPass" placeholder="••••••••">
+                </div>
+                <button class="btn-add" onclick="createModerator()">Create Moderator</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Existing Moderators</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moderatorList">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        const API_URL = 'http://localhost:5000/api/admin';
+        const token = localStorage.getItem('token');
+
+        // Security check
+        if (!token || localStorage.getItem('role') !== 'admin') {
+            window.location.href = 'index.html';
+        }
+
+        async function fetchModerators() {
+            try {
+                const res = await fetch(`${API_URL}/moderators`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('moderatorList');
+                
+                tbody.innerHTML = data.map(mod => {
+                    const status = mod.status || 'active';
+                    return `
+                        <tr>
+                            <td><strong>${mod.name}</strong></td>
+                            <td>${mod.email}</td>
+                            <td>
+                                <span class="status-badge ${status === 'held' ? 'status-held' : 'status-active'}">
+                                    ${status}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <button class="btn-action btn-edit" onclick="editMod('${mod.email}', '${mod.name}')">Edit</button>
+                                    <button class="btn-action btn-hold" onclick="toggleHold('${mod.email}', '${status}')">
+                                        ${status === 'held' ? 'Unhold' : 'Hold'}
+                                    </button>
+                                    <button class="btn-action btn-delete" onclick="deleteMod('${mod.email}')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Failed to fetch moderators:", err);
+            }
+        }
+
+        async function createModerator() {
+            const name = document.getElementById('modName').value;
+            const email = document.getElementById('modEmail').value;
+            const password = document.getElementById('modPass').value;
+
+            if(!name || !email || !password) return alert("Please fill all fields");
+
+            const res = await fetch(`${API_URL}/create-moderator`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            if (res.ok) {
+                alert("Moderator successfully added!");
+                document.getElementById('modName').value = '';
+                document.getElementById('modEmail').value = '';
+                document.getElementById('modPass').value = '';
+                fetchModerators();
+            } else {
+                alert("Error adding moderator.");
+            }
+        }
+
+        async function editMod(email, currentName) {
+            const newName = prompt("Enter new name for " + email, currentName);
+            if (newName && newName !== currentName) {
+                const res = await fetch(`${API_URL}/edit-moderator`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, name: newName })
+                });
+                if (res.ok) fetchModerators();
+            }
+        }
+
+        async function toggleHold(email, currentStatus) {
+            const newStatus = currentStatus === 'held' ? 'active' : 'held';
+            const res = await fetch(`${API_URL}/moderator-status`, {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ email, status: newStatus })
+            });
+            if (res.ok) fetchModerators();
+        }
+
+        async function deleteMod(email) {
+            if(confirm('Are you sure you want to delete this moderator?')) {
+                const res = await fetch(`${API_URL}/moderator/${email}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) fetchModerators();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Initial Load
+        fetchModerators();
+    </script>
+</body>
+</html>

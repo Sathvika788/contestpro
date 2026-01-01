@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contest Progression Designer | Moderator Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --bg-body: #f8f9fa;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(214,100%,92%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(220,100%,94%,1) 0, transparent 50%);
+            color: var(--text-main); 
+            line-height: 1.6; 
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .nav-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Header styling */
+        header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            padding: 40px 0; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(106, 17, 203, 0.2); 
+            margin-bottom: 30px; 
+            margin-top: 10px;
+        }
+        
+        .header-content { display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .header-content h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .header-content p { font-size: 16px; opacity: 0.8; margin-top: 5px; }
+        
+        .moderator-info { 
+            display: flex; 
+            align-items: center; 
+            background: rgba(255, 255, 255, 0.2); 
+            padding: 12px 20px; 
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+        .moderator-info i { font-size: 20px; margin-right: 12px; }
+
+        /* Layout */
+        .main-content { display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
+        
+        .card { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px);
+            border-radius: 20px; 
+            padding: 30px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            transition: transform 0.3s ease; 
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+        .card-title { 
+            font-size: 20px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            margin-bottom: 25px; 
+            padding-bottom: 15px; 
+            border-bottom: 1px solid #f0f0f0; 
+            display: flex; 
+            align-items: center; 
+        }
+        .card-title i { margin-right: 12px; color: var(--primary); }
+
+        /* Progression Flow */
+        .contest-progression { display: flex; flex-direction: column; align-items: center; position: relative; margin: 30px 0; }
+        .progression-step { display: flex; align-items: center; width: 100%; margin-bottom: 30px; position: relative; }
+        .step-number { 
+            width: 50px; 
+            height: 50px; 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 800; 
+            font-size: 20px; 
+            z-index: 2; 
+            flex-shrink: 0; 
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+        .step-content { 
+            background: var(--white); 
+            border-left: 4px solid var(--primary); 
+            padding: 20px; 
+            margin-left: 20px; 
+            border-radius: 12px; 
+            flex-grow: 1; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .connector-line { position: absolute; left: 25px; top: 50px; bottom: -30px; width: 3px; background: #e2e8f0; z-index: 1; }
+
+        /* Forms and Buttons */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; text-transform: uppercase; }
+        select, input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        select:focus, input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(106, 17, 203, 0.1); }
+        
+        .checkbox-group { display: flex; align-items: center; margin-top: 10px; cursor: pointer; }
+        .checkbox-group input { width: auto; margin-right: 12px; }
+        
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px;
+            padding: 14px 28px; 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.3s;
+            text-align: center;
+            justify-content: center;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(106, 17, 203, 0.2); }
+        .btn-success { background: #10b981; }
+        .btn-secondary { background: #64748b; color: white; }
+        
+        .action-card { 
+            background: white; 
+            border-radius: 15px; 
+            padding: 20px; 
+            text-align: center; 
+            border: 2px solid #f1f5f9; 
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .action-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .action-icon { font-size: 32px; color: var(--primary); margin-bottom: 10px; }
+
+        .contest-item { 
+            padding: 15px; 
+            background: white; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            border-left: 4px solid var(--primary); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        @media (max-width: 992px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="moderator.html" class="nav-logo-container">
+            <img src="logo.jpg" alt="Logo" class="nav-logo-img">
+            <span class="nav-logo-text">ContestPro</span>
+        </a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>Contest Progression Designer</h1>
+                    <p>Design contest rules and progression pathways for students</p>
+                </div>
+                <div class="moderator-info">
+                    <i class="fas fa-user-shield"></i>
+                    <div>
+                        <strong>Moderator Panel</strong>
+                        <div id="modName">Admin Access</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="left-col">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-sitemap"></i> Contest Progression Flow</h2>
+                    
+                    <div class="contest-progression">
+                        <div class="progression-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <strong>Normal Contest</strong>
+                                <p style="font-size: 14px; color: var(--text-muted); margin-top: 5px;">Set initial coding challenges. Students must pass this to advance.</p>
+                            </div>
+                            <div class="connector-line"></div>
+                        </div>
+                        <div class="progression-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <strong>Debugging Contest</strong>
+                                <p style="font-size: 14px; color: var(--text-muted); margin-top: 5px;">Only accessible after passing Step 1. Focuses on code analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-cogs"></i> Progression Rule Configuration</h2>
+                    <form id="progressionForm">
+                        <div class="form-group">
+                            <label for="normalContest">Select Normal Contest</label>
+                            <select id="normalContest" required>
+                                <option value="">Loading contests...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="debugContest">Select Debugging Contest</label>
+                            <select id="debugContest" required>
+                                <option value="">Loading contests...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="passingScore">Minimum Passing Score (%)</label>
+                            <input type="number" id="passingScore" min="0" max="100" value="70">
+                        </div>
+                        <div class="form-group">
+                            <label>Advanced Requirements</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="timeLimit" checked>
+                                <label for="timeLimit" style="text-transform: none; font-weight: 500;">Complete within time limit</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="noCheating" checked>
+                                <label for="noCheating" style="text-transform: none; font-weight: 500;">Anti-cheat validation</label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; margin-top: 10px;">
+                            <button type="submit" class="btn"><i class="fas fa-save"></i> Save Rules</button>
+                            <button type="button" class="btn btn-secondary" onclick="location.reload()">Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-history"></i> Recent Activity</h2>
+                    <div id="recentContestsList">Loading recent activity...</div>
+                </div>
+            </div>
+            
+            <div class="right-col">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-bolt"></i> Quick Create</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <a href="create-contest.html" class="action-card">
+                            <i class="fas fa-code action-icon"></i>
+                            <div style="font-weight: 700;">Normal</div>
+                        </a>
+                        <a href="create-debug-contest.html" class="action-card">
+                            <i class="fas fa-bug action-icon"></i>
+                            <div style="font-weight: 700;">Debug</div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Statistics</h2>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 13px;">Active Rules</span>
+                            <div id="activeRulesCount" style="font-size: 24px; font-weight: 800;">0</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 13px;">In Progression</span>
+                            <div id="studentsInProgression" style="font-size: 24px; font-weight: 800;">0</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 13px;">Success Rate</span>
+                            <div id="successRate" style="font-size: 24px; font-weight: 800; color: #10b981;">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html'; 
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadModeratorInfo();
+            loadContests();
+            loadRecentContests();
+            loadStatistics();
+        });
+
+        function loadModeratorInfo() {
+            const name = localStorage.getItem('userName');
+            if (name) document.getElementById('modName').textContent = name;
+        }
+
+        async function loadContests() {
+            try {
+                const resNormal = await fetch(`${API_BASE_URL}/moderator/contests`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataNormal = await resNormal.json();
+
+                const resDebug = await fetch(`${API_BASE_URL}/moderator/debug-contests`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataDebug = await resDebug.json();
+
+                populateSelect('normalContest', dataNormal.data, 'Normal Contest');
+                populateSelect('debugContest', dataDebug.data, 'Debug Contest');
+
+            } catch (err) {
+                console.error("Error fetching contests:", err);
+            }
+        }
+
+        function populateSelect(id, items, defaultText) {
+            const select = document.getElementById(id);
+            select.innerHTML = `<option value="">Select ${defaultText}</option>`;
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.contest_id;
+                    opt.textContent = item.title || item.name;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        async function loadRecentContests() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/moderator/recent-contests`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                const list = document.getElementById('recentContestsList');
+                
+                if (result.success && result.data.length > 0) {
+                    list.innerHTML = result.data.map(c => `
+                        <div class="contest-item">
+                            <div>
+                                <strong style="display:block">${c.title}</strong>
+                                <span style="font-size:11px; color:var(--text-muted)">${c.type}</span>
+                            </div>
+                            <span style="font-size:12px; font-weight:700; color:var(--primary)">${c.status}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p style="color:var(--text-muted)">No activity yet.</p>';
+                }
+            } catch (err) {
+                document.getElementById('recentContestsList').innerHTML = 'Error loading activity.';
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/moderator/progression-stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('activeRulesCount').textContent = result.data.activeRules;
+                    document.getElementById('studentsInProgression').textContent = result.data.studentsInProgression;
+                    document.getElementById('successRate').textContent = result.data.successRate;
+                }
+            } catch (err) { console.error("Stats load failed"); }
+        }
+
+        document.getElementById('progressionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                normalContestId: document.getElementById('normalContest').value,
+                debugContestId: document.getElementById('debugContest').value,
+                passingScore: document.getElementById('passingScore').value,
+                timeLimitRequired: document.getElementById('timeLimit').checked,
+                disqualifyOnCheating: document.getElementById('noCheating').checked
+            };
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/moderator/save-progression-rules`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Rules saved successfully!');
+                    loadStatistics();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) { alert('Connection error.'); }
+        });
+    </script>
+</body>
+</html>

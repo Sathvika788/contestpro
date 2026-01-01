@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moderator - Debugging Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 30px 40px;
+        }
+        
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .sidebar {
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 30px 20px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: #4a5568;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover { background: #edf2f7; color: #2d3748; }
+        .nav-item.active { background: #6366f1; color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        
+        .main-content { padding: 40px; overflow-y: auto; max-height: calc(100vh - 200px); }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        
+        .stat-card {
+            background: white; padding: 25px; border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: all 0.3s;
+        }
+        
+        .stat-card h4 { margin: 0 0 10px 0; color: #5c6bc0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card p { margin: 0; font-size: 32px; font-weight: bold; color: #1a237e; }
+        .stat-card .subtext { font-size: 14px; color: #718096; margin-top: 5px; }
+        
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 30px; }
+        .card h3 { color: #2d3748; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f7fafc; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .filter-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        
+        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-export { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .btn-refresh { background: #f7fafc; color: #4a5568; border: 2px solid #e2e8f0; }
+        
+        select, input[type="text"] { padding: 10px 14px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 14px; background: white; width: 100%; }
+        
+        .results-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; }
+        .results-table th { background: #f7fafc; color: #4a5568; font-weight: 600; padding: 16px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+        .results-table td { padding: 16px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .badge-completed { background: #d1fae5; color: #065f46; }
+        .badge-inprogress { background: #fef3c7; color: #92400e; }
+        .badge-notstarted { background: #f3f4f6; color: #6b7280; }
+        .badge-language { background: #dbeafe; color: #1e40af; }
+        
+        .progress-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); transition: width 0.3s; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; border-radius: 20px; padding: 40px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        
+        .close-modal { background: none; border: none; font-size: 24px; color: #718096; cursor: pointer; float: right; }
+        
+        .toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; border-radius: 10px; color: white; z-index: 1000; display: flex; align-items: center; gap: 10px; }
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="header-flex">
+                <h1><i class="fas fa-chart-bar"></i> Debugging Contest Results</h1>
+                <button class="btn btn-export" onclick="exportResults()">
+                    <i class="fas fa-file-export"></i> Export to CSV
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="sidebar">
+                <a class="nav-item" href="moderator.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a class="nav-item" href="create-debug-contest.html"><i class="fas fa-bug"></i> Debug Creator</a>
+                <a class="nav-item active" href="debug-results.html"><i class="fas fa-chart-bar"></i> Debugging Results</a>
+                <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+            
+            <div class="main-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Total Participants</h4>
+                        <p id="stat-total">0</p>
+                        <div class="subtext" id="stat-total-contests">Across 0 contests</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Avg. Completion</h4>
+                        <p id="stat-completion-rate">0%</p>
+                        <div class="subtext">Finished tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Avg. Score</h4>
+                        <p id="stat-average">0</p>
+                        <div class="subtext" id="stat-high-score">High: 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Avg Time</h4>
+                        <p id="stat-time">0m</p>
+                        <div class="subtext">Submission pace</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-filter"></i> Filter Results</h3>
+                    <div class="table-controls">
+                        <div class="filter-group">
+                            <div style="min-width: 250px;">
+                                <label>Select Contest</label>
+                                <select id="contestFilter" onchange="loadContestResults()"></select>
+                            </div>
+                            <div style="min-width: 180px;">
+                                <label>Sort By</label>
+                                <select id="sortBy" onchange="loadContestResults()">
+                                    <option value="score">Score (High to Low)</option>
+                                    <option value="name">Name</option>
+                                    <option value="time">Time Taken</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-refresh" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+                    <input type="text" id="searchStudent" placeholder="🔍 Search student..." oninput="filterTable()">
+                </div>
+                
+                <div class="card">
+                    <div id="loadingResults" style="display:none; text-align:center;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                    <div id="resultsContainer">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student</th>
+                                    <th>Email</th>
+                                    <th>Solved</th>
+                                    <th>Score</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        let allContests = [], currentResults = [], currentContest = null, allSubmissions = [];
+
+        if (!token) window.location.href = 'login.html';
+
+        document.addEventListener('DOMContentLoaded', loadAllData);
+
+        async function loadAllData() {
+            await loadContests();
+            if (allContests.length > 0) {
+                document.getElementById('contestFilter').value = allContests[0].contest_id;
+                await loadContestResults();
+            }
+        }
+
+        async function loadContests() {
+            try {
+                const res = await fetch(`${API_URL}/moderator/debug-contests`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    allContests = data.data;
+                    document.getElementById('contestFilter').innerHTML = allContests.map(c => `<option value="${c.contest_id}">${c.title}</option>`).join('');
+                    document.getElementById('stat-total-contests').textContent = `Across ${allContests.length} contests`;
+                }
+            } catch (e) { showToast("Error loading contests", "error"); }
+        }
+
+        async function loadContestResults() {
+            const contestId = document.getElementById('contestFilter').value;
+            if (!contestId) return;
+
+            document.getElementById('loadingResults').style.display = 'block';
+            try {
+                const [cRes, sRes] = await Promise.all([
+                    fetch(`${API_URL}/moderator/debug-contest/${contestId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_URL}/moderator/debug-submissions/${contestId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                const cData = await cRes.json();
+                const sData = await sRes.json();
+
+                if (cData.success && sData.success) {
+                    currentContest = cData.data;
+                    allSubmissions = sData.data;
+                    currentResults = processSubmissions(allSubmissions, currentContest);
+                    renderTable(currentResults);
+                    updateStatsDisplay();
+                }
+            } catch (e) { showToast("Error fetching results", "error"); }
+            finally { document.getElementById('loadingResults').style.display = 'none'; }
+        }
+
+        function processSubmissions(subs, contest) {
+            const map = new Map();
+            subs.forEach(s => {
+                if (!map.has(s.student_email)) {
+                    map.set(s.student_email, { 
+                        name: s.student_name, email: s.student_email, scores: new Map(), 
+                        first: s.submitted_at, last: s.submitted_at, totalProblems: contest.problems.length 
+                    });
+                }
+                const entry = map.get(s.student_email);
+                if (s.score > (entry.scores.get(s.problem_index) || 0)) entry.scores.set(s.problem_index, s.score);
+                if (new Date(s.submitted_at) < new Date(entry.first)) entry.first = s.submitted_at;
+                if (new Date(s.submitted_at) > new Date(entry.last)) entry.last = s.submitted_at;
+            });
+
+            return Array.from(map.values()).map(e => {
+                const totalScore = Array.from(e.scores.values()).reduce((a, b) => a + b, 0);
+                const solved = Array.from(e.scores.values()).filter(s => s > 0).length;
+                const time = Math.round((new Date(e.last) - new Date(e.first)) / 60000);
+                return { ...e, totalScore, solved, time };
+            }).sort((a, b) => b.totalScore - a.totalScore);
+        }
+
+        function renderTable(data) {
+            document.getElementById('resultsBody').innerHTML = data.map((r, i) => `
+                <tr>
+                    <td>#${i + 1}</td>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${r.email}</td>
+                    <td>${r.solved}/${r.totalProblems}</td>
+                    <td>${r.totalScore}</td>
+                    <td>${r.time}m</td>
+                    <td>
+                        <button class="btn-icon" onclick="viewDetails('${r.email}')"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon" onclick="viewCode('${r.email}')"><i class="fas fa-code"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('stat-total').textContent = currentResults.length;
+            const avgScore = currentResults.length ? (currentResults.reduce((a, b) => a + b.totalScore, 0) / currentResults.length).toFixed(1) : 0;
+            const avgTime = currentResults.length ? Math.round(currentResults.reduce((a, b) => a + b.time, 0) / currentResults.length) : 0;
+            document.getElementById('stat-average').textContent = avgScore;
+            document.getElementById('stat-time').textContent = avgTime + 'm';
+            document.getElementById('stat-completion-rate').textContent = currentResults.length ? 
+                Math.round((currentResults.filter(r => r.solved === r.totalProblems).length / currentResults.length) * 100) + '%' : '0%';
+        }
+
+        function exportResults() {
+            if (!currentResults.length) return showToast("No data to export", "error");
+            const headers = ["Rank", "Name", "Email", "Solved", "Score", "Time(m)"];
+            const csv = [headers.join(",")].concat(currentResults.map((r, i) => 
+                `${i+1},"${r.name}",${r.email},${r.solved}/${r.totalProblems},${r.totalScore},${r.time}`
+            )).join("\n");
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `Results_${currentContest.name}.csv`;
+            a.click();
+            showToast("Exporting CSV...", "success");
+        }
+
+        function viewDetails(email) {
+            const r = currentResults.find(x => x.email === email);
+            document.getElementById('modalContent').innerHTML = `<h3>${r.name}</h3><p>${r.email}</p><hr><p>Total Score: ${r.totalScore}</p><p>Time: ${r.time} minutes</p>`;
+            document.getElementById('studentModal').style.display = 'flex';
+        }
+
+        function viewCode(email) {
+            const subs = allSubmissions.filter(s => s.student_email === email);
+            document.getElementById('modalContent').innerHTML = `<h3>Submissions: ${email}</h3>` + 
+                subs.map(s => `<div style="background:#f4f4f4; padding:10px; margin-top:10px; border-radius:5px;">
+                    <strong>Problem ${s.problem_index + 1}</strong> (${s.test_passed ? 'Passed' : 'Failed'})<br>
+                    <pre style="font-size:12px;">${escapeHtml(s.fixed_code)}</pre>
+                </div>`).join('');
+            document.getElementById('studentModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('studentModal').style.display = 'none'; }
+        function filterTable() {
+            const val = document.getElementById('searchStudent').value.toLowerCase();
+            const filtered = currentResults.filter(r => r.name.toLowerCase().includes(val) || r.email.toLowerCase().includes(val));
+            renderTable(filtered);
+        }
+
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        window.onclick = (e) => { if (e.target.className === 'modal-overlay') closeModal(); };
+    </script>
+</body>
+</html>
