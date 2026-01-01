@@ -221,7 +221,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5000/api';
+        const API_URL = 'http://3.108.67.225/:5000/api';
         const token = localStorage.getItem('token');
         let allContests = [], currentResults = [], currentContest = null, allSubmissions = [];
 
@@ -378,4 +378,5 @@
         window.onclick = (e) => { if (e.target.className === 'modal-overlay') closeModal(); };
     </script>
 </body>
+
 </html>
